@@ -1,0 +1,2 @@
+# my-prolog
+Prolog exercises
