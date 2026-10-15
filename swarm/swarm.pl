@@ -1,7 +1,8 @@
 % ============================================================
-% THE SPRAWL — crew sheet
-% Neon Sprawl, 2087. Facts only. No rules yet.
+% THE SPRAWLt
+% Neon Sprawl, 2087. 
 % ============================================================
+
 
 % --- Who exists ---
 operative(vex).
@@ -46,12 +47,36 @@ divided_loyalty(sable).
 has_heat(vex).
 has_heat(sable).
 
+% --- Jobs ---
+job(helix_data_grab).
+job(bodyguard_meet).
+job(rooftop_stakeout).
+
+% --- What each job requires (a list of skills) ---
+requires(helix_data_grab, [infiltration, netrunning]).
+requires(bodyguard_meet,   [combat, social]).
+requires(rooftop_stakeout, [surveillance]).
+
 
 can_do(Op,Skill):-
-	writeln(here1(Op)),
 	specialty(Op,Skill).
 
 can_do(Op,Skill) :-
 	gear(Op,G),
-	writeln(here2(Op)),
 	provides(G,Skill).
+
+eligible(Op,Job) :-
+	operative(Op),% bound: checks Op is in the crew.
+	              % unbound: generates each operative in turn.
+	job(Job), % bound: checks if there  is a job.
+	          % unbound: generates each job in turn.
+	requires(Job, Skills), % -- gets the list of skills
+	can_do_all(Op,Skills). % -- checks the list of skills against each OP
+
+can_do_all(_,[]). % List empty so succed
+
+can_do_all(Op,[Skill | Rest]) :-  % Split list into head (Skill) and tail (Rest).
+	can_do(Op,Skill), % -- checks that skill against Op
+	can_do_all(Op,Rest). % -- checks the rest of the list.
+	% Succeeds only if can_do holds for every skill in the list.
+    % Fails at the first skill that can't be done — failure propagates up.
